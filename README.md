@@ -1,15 +1,26 @@
 #BalancedColumnLayout
 
-A UICollectionViewLayout that displays your cells in columns (i.e. how Pintrest lays out it's views).  Why, cause I wanted to learn how to do it, and I didn't like the implementations of any of the ones I had found online.
+A UICollectionViewLayout that displays your cells in a variable number of columns that fit to the bounds of the CollectionView.  Why? Cause every other layout that attempts to mimic the Pintrest waterfall layout (as this does) wants you to set the number of columns from the outside and I wanted my layout to figure that out for me so I didn't have to deal with it in the rotation logic.
 
 ## Usage
 
 1. Copy RBCollectionViewBalancedColumnLayout .h/.m into your project
 2. Set the layout on your collectionView to Custom, and set it's name to RBCollectionViewBalancedColumnLayout
-3. Implement the collectionView:layout:sizeForItemAtIndexPath: delegate method
-4. Run - if you want the default of 300pt wide cells (i.e. 1 column for iPhone portrait/landscape, 2 for iPad portrait, 3 for iPad landscape)
+3. Implement the collectionView:layout:sizeForItemAtIndexPath: delegate method - if you want variable height cells
 
-To customize the size of your cells grab the layout from the collection view and set the cellWidth property.
+To customize the size of your cells grab the layout from the collection view and set the cellWidth property:
+``` objective-c
+RBCollectionViewBalancedColumnLayout * layout = (id)self.collectionView.collectionViewLayout;
+layout.cellWidth = 100;
+```
+
+To make layout work with rotation invalidate it like so:
+``` objective-c
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[self.collectionView.collectionViewLayout invalidateLayout];
+}
+```
 
 ####TODO
 
