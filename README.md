@@ -6,3 +6,6 @@ A UICollectionViewLayout that displays your cells in columns (i.e. how Pintrest 
 ####TODO
 
 * Implement header/footer supplementary views
+* Remove hardcoded top inset from layoutAttributesForItemAtIndexPath:
+* Make more configurable
+* Figure out how to exposed properties to IB (yeah right!)
