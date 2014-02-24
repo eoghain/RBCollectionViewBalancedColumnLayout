@@ -1,13 +1,13 @@
 //
-//  RBCollectionViewColumnLayout.m
+//  RBCollectionViewBalancedColumnLayout.m
 //  RBColumnViewLayoutDemo
 //
 //  Created by Rob Booth on 2/20/14.
 //
 
-#import "RBCollectionViewColumnLayout.h"
+#import "RBCollectionViewBalancedColumnLayout.h"
 
-@interface RBCollectionViewColumnLayout()
+@interface RBCollectionViewBalancedColumnLayout()
 
 @property (nonatomic, strong) NSMutableDictionary * layoutInformation;
 @property (nonatomic, strong) NSMutableArray * columns;
@@ -16,7 +16,7 @@
 
 @end
 
-@implementation RBCollectionViewColumnLayout
+@implementation RBCollectionViewBalancedColumnLayout
 
 # pragma mark - Lifecycle
 
@@ -141,17 +141,6 @@
 	}];
 
 	return attributes;
-}
-
-- (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
-{
-	id delegate = self.collectionView.delegate;
-	if ([delegate respondsToSelector:@selector(collectionView:viewForSupplementaryElementOfKind:atIndexPath:)])
-	{
-		UICollectionReusableView * view = [delegate collectionView:self.collectionView viewForSupplementaryElementOfKind:kind atIndexPath:indexPath];
-	}
-
-	return nil;
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath

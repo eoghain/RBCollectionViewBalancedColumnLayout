@@ -138,8 +138,9 @@
 				3125AF0A18B8221000EC0CE5 /* RBCollectionViewBalancedColumnLayout.h */,
 				3125AF0B18B8221000EC0CE5 /* RBCollectionViewBalancedColumnLayout.m */,
 			);
-			path = RBCollectionViewBalancedColumnLayout;
-			sourceTree = "<group>";
+			name = RBCollectionViewBalancedColumnLayout;
+			path = ../RBCollectionViewBalancedColumnLayout;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -442,6 +443,7 @@
 				3125AF0518B821FA00EC0CE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3125AF0618B821FA00EC0CE5 /* Build configuration list for PBXNativeTarget "DemoTests" */ = {
 			isa = XCConfigurationList;
@@ -450,6 +452,7 @@
 				3125AF0818B821FA00EC0CE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
