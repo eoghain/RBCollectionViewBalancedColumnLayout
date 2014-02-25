@@ -93,6 +93,32 @@
 	return shortestColumn;
 }
 
+- (void)removeCell:(id)cell fromColumn:(NSInteger)column
+{
+	[[self.columns objectAtIndex:column] removeObject:cell];
+}
+
+- (void)addCell:(id)cell toColumn:(NSInteger)column
+{
+	[[self.columns objectAtIndex:column] addObject:cell];
+}
+
+- (NSInteger)columnForCell:(id)cell
+{
+	NSInteger columnIdx = NSNotFound;
+
+	for (NSInteger column = 0; column < self.columns.count; column++)
+	{
+		if ([[self.columns objectAtIndex:column] containsObject:cell])
+		{
+			columnIdx = column;
+			break;
+		}
+	}
+
+	return columnIdx;
+}
+
 #pragma mark - UICollectionViewLayout methods
 
 - (void)prepareLayout
@@ -183,7 +209,16 @@
     attributes.size = itemFrame.size;
     attributes.center = CGPointMake(CGRectGetMidX(itemFrame), CGRectGetMidY(itemFrame));
 
-	[[self.columns objectAtIndex:column] addObject:indexPath];
+	NSInteger existingColumnPosition = [self columnForCell:indexPath];
+
+	if (existingColumnPosition != column)
+	{
+		if (existingColumnPosition != NSNotFound)
+		{
+			[self removeCell:indexPath fromColumn:existingColumnPosition];
+		}
+		[self addCell:indexPath toColumn:column];
+	}
 
     return attributes;
 }
