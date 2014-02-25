@@ -65,13 +65,24 @@
 
 - (UICollectionViewLayoutAttributes *)lastAttributesInColumn:(NSInteger)column
 {
-	return [self.layoutInformation objectForKey:[self.columns[column] lastObject]];
+	__block UICollectionViewLayoutAttributes * attributes;
+
+	[[self.columns objectAtIndex:column] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		UICollectionViewLayoutAttributes * objAttributes = (id)[self.layoutInformation objectForKey:obj];
+
+		if (CGRectGetMaxY(objAttributes.frame) > CGRectGetMaxY(attributes.frame))
+		{
+			attributes = objAttributes;
+		}
+	}];
+
+	return attributes;
 }
 
 - (CGFloat)heightForColumn:(NSInteger)column
 {
 	UICollectionViewLayoutAttributes * attributes = [self lastAttributesInColumn:column];
-	return attributes.frame.size.height + attributes.frame.origin.y + self.interItemSpacingY;
+	return CGRectGetMaxY(attributes.frame) + self.interItemSpacingY;
 }
 
 - (NSInteger)shortestColumn
@@ -198,7 +209,7 @@
 
 	if (lastAttributes != nil)
 	{
-		top = lastAttributes.center.y + (lastAttributes.size.height / 2) + self.interItemSpacingY;
+		top = CGRectGetMaxY(lastAttributes.frame) + self.interItemSpacingY;
 	}
 
 	CGRect itemFrame = CGRectZero;

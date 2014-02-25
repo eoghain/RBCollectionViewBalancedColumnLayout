@@ -7,6 +7,8 @@
 
 #import "ViewController.h"
 
+#import "RBCollectionViewBalancedColumnLayout.h"
+
 @interface ViewController ()
 
 @property (nonatomic, strong) NSMutableDictionary * cellHeights;
@@ -27,6 +29,8 @@
 {
     [super viewDidLoad];
 	self.cellHeights = [NSMutableDictionary dictionary];
+
+	((RBCollectionViewBalancedColumnLayout *)self.collectionView.collectionViewLayout).interItemSpacingY = 10;
 }
 
 - (void)didReceiveMemoryWarning
