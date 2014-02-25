@@ -14,6 +14,10 @@
 @property (nonatomic, strong) NSMutableArray * columnGutters;
 @property (nonatomic, assign) CGFloat gutterSpace;
 
+@property (nonatomic, strong) NSMutableArray * insertIndexPaths;
+@property (nonatomic, strong) NSMutableArray * deleteIndexPaths;
+@property (nonatomic, strong) NSMutableArray * reloadIndexPaths;
+
 @end
 
 @implementation RBCollectionViewBalancedColumnLayout
@@ -202,9 +206,45 @@
 	return CGSizeMake(width, height);
 }
 
+- (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
+{
+	// Keep track of insert and delete index paths
+    [super prepareForCollectionViewUpdates:updateItems];
+
+    self.deleteIndexPaths = [NSMutableArray array];
+    self.insertIndexPaths = [NSMutableArray array];
+	self.reloadIndexPaths = [NSMutableArray array];
+
+    for (UICollectionViewUpdateItem *update in updateItems)
+    {
+        if (update.updateAction == UICollectionUpdateActionDelete)
+        {
+            [self.deleteIndexPaths addObject:update.indexPathBeforeUpdate];
+        }
+        else if (update.updateAction == UICollectionUpdateActionInsert)
+        {
+            [self.insertIndexPaths addObject:update.indexPathAfterUpdate];
+        }
+		else if (update.updateAction == UICollectionUpdateActionReload)
+        {
+            [self.reloadIndexPaths addObject:update.indexPathAfterUpdate];
+        }
+    }
+}
+
+
 - (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
 {
-	UICollectionViewLayoutAttributes * attributes = [super initialLayoutAttributesForAppearingItemAtIndexPath:itemIndexPath];
+	UICollectionViewLayoutAttributes * attributes;
+
+	if ([self.reloadIndexPaths containsObject:itemIndexPath])
+	{
+		attributes = [self.layoutInformation objectForKey:itemIndexPath];
+	}
+	else
+	{
+		attributes = [super initialLayoutAttributesForAppearingItemAtIndexPath:itemIndexPath];
+	}
 
 	attributes.alpha = 1.0;
 
