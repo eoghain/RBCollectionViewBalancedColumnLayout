@@ -209,29 +209,37 @@
 - (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
 {
 	// Keep track of insert and delete index paths
-    [super prepareForCollectionViewUpdates:updateItems];
+	[super prepareForCollectionViewUpdates:updateItems];
 
-    self.deleteIndexPaths = [NSMutableArray array];
-    self.insertIndexPaths = [NSMutableArray array];
+	self.deleteIndexPaths = [NSMutableArray array];
+	self.insertIndexPaths = [NSMutableArray array];
 	self.reloadIndexPaths = [NSMutableArray array];
 
-    for (UICollectionViewUpdateItem *update in updateItems)
-    {
-        if (update.updateAction == UICollectionUpdateActionDelete)
-        {
-            [self.deleteIndexPaths addObject:update.indexPathBeforeUpdate];
-        }
-        else if (update.updateAction == UICollectionUpdateActionInsert)
-        {
-            [self.insertIndexPaths addObject:update.indexPathAfterUpdate];
-        }
+	for (UICollectionViewUpdateItem *update in updateItems)
+	{
+		if (update.updateAction == UICollectionUpdateActionDelete)
+		{
+			[self.deleteIndexPaths addObject:update.indexPathBeforeUpdate];
+		}
+		else if (update.updateAction == UICollectionUpdateActionInsert)
+		{
+			[self.insertIndexPaths addObject:update.indexPathAfterUpdate];
+		}
 		else if (update.updateAction == UICollectionUpdateActionReload)
-        {
-            [self.reloadIndexPaths addObject:update.indexPathAfterUpdate];
-        }
-    }
+		{
+			[self.reloadIndexPaths addObject:update.indexPathAfterUpdate];
+		}
+	}
 }
 
+- (void)finalizeCollectionViewUpdates
+{
+	[super finalizeCollectionViewUpdates];
+	// release the insert and delete index paths
+	self.deleteIndexPaths = nil;
+	self.insertIndexPaths = nil;
+	self.reloadIndexPaths = nil;
+}
 
 - (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
 {
