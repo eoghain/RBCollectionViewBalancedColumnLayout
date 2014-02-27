@@ -69,14 +69,14 @@
 	{
 		reuseView = [self.collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
 
-		reuseView.backgroundColor = (indexPath.row % 2) ? [UIColor blueColor] : [UIColor redColor];
+		reuseView.backgroundColor = (indexPath.section % 2) ? [UIColor blueColor] : [UIColor redColor];
 	}
 
 	if (kind == RBCollectionViewBalancedColumnFooterKind)
 	{
 		reuseView = [self.collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
 
-		reuseView.backgroundColor = (indexPath.row % 2) ? [UIColor greenColor] : [UIColor yellowColor];
+		reuseView.backgroundColor = (indexPath.section % 2) ? [UIColor greenColor] : [UIColor yellowColor];
 	}
 
 	return reuseView;
