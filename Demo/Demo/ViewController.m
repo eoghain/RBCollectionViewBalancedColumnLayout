@@ -9,7 +9,7 @@
 
 #import "RBCollectionViewBalancedColumnLayout.h"
 
-@interface ViewController ()
+@interface ViewController () < RBCollectionViewBalancedColumnLayoutDelegate >
 
 @property (nonatomic, strong) NSMutableDictionary * cellHeights;
 
@@ -31,6 +31,9 @@
 	self.cellHeights = [NSMutableDictionary dictionary];
 
 	((RBCollectionViewBalancedColumnLayout *)self.collectionView.collectionViewLayout).interItemSpacingY = 10;
+
+	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnHeaderKind withReuseIdentifier:@"header"];
+	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnFooterKind withReuseIdentifier:@"header"];
 }
 
 - (void)didReceiveMemoryWarning
@@ -50,12 +53,33 @@
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-	return 1;
+	return 2;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
 	return 10;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+	UICollectionReusableView * reuseView;
+
+	if (kind == RBCollectionViewBalancedColumnHeaderKind)
+	{
+		reuseView = [self.collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
+
+		reuseView.backgroundColor = (indexPath.row % 2) ? [UIColor blueColor] : [UIColor redColor];
+	}
+
+	if (kind == RBCollectionViewBalancedColumnFooterKind)
+	{
+		reuseView = [self.collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
+
+		reuseView.backgroundColor = (indexPath.row % 2) ? [UIColor greenColor] : [UIColor yellowColor];
+	}
+
+	return reuseView;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -74,19 +98,29 @@
 	return cell;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+#pragma mark - RBCollectionViewBalancedColumnLayoutDelegate
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout*)collectionViewLayout heightForHeaderInSection:(NSInteger)section
+{
+	return 50.0;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout*)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath
 {
 	int height = [[self.cellHeights objectForKey:indexPath] floatValue];
 	if (height > 0)
-		return CGSizeMake(300, height);
+		return height;
 
 	height = 100 + rand() % 400;
 	if (indexPath.row == 3) height = 1000;
-	CGSize cellSize = CGSizeMake(300, height);
 	[self.cellHeights setObject:@( height ) forKey:indexPath];
 
-	return cellSize;
+	return height;
 }
 
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout*)collectionViewLayout heightForFooterInSection:(NSInteger)section
+{
+	return 25.0;
+}
 
 @end
