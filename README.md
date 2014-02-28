@@ -24,7 +24,5 @@ To make layout work with rotation invalidate it like so:
 
 ####TODO
 
-* Implement header/footer supplementary views
-* Remove hardcoded top inset from layoutAttributesForItemAtIndexPath:
 * Make more configurable
 * Figure out how to exposed properties to IB (yeah right!)

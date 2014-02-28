@@ -120,7 +120,7 @@
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout*)collectionViewLayout heightForFooterInSection:(NSInteger)section
 {
-	return 25.0;
+	return (section == 1) ? 25.0 : 0;
 }
 
 @end

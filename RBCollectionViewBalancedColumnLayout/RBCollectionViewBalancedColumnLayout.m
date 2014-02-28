@@ -14,7 +14,7 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 @interface RBCollectionViewBalancedColumnLayout()
 
 @property (nonatomic, strong) NSMutableDictionary * layoutInformation;
-@property (nonatomic, strong) NSMutableArray * columns;
+@property (nonatomic, strong) NSMutableDictionary * sectionColumns;
 @property (nonatomic, strong) NSMutableDictionary * headers;
 @property (nonatomic, strong) NSMutableDictionary * footers;
 @property (nonatomic, strong) NSMutableArray * columnGutters;
@@ -69,37 +69,20 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 #pragma mark - Helpers
 
-//- (void)reOrderColumn:(NSInteger)column
-//{
-//	NSInteger items = [self.columns[column] count];
-//	__block NSMutableArray * newOrder = [NSMutableArray arrayWithCapacity:items];
-//
-//	NSInteger placed = 1;
-//	while (placed <= items)
-//	{
-//		NSInteger index = items - placed;
-////		__block CGRect checkFrame = CGRectZero;
-//		__block UICollectionViewLayoutAttributes * attributes;
-//
-//		[self.columns[column] enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes * objAttributes, NSUInteger idx, BOOL *stop) {
-//			if (attributes.frame.origin.y < objAttributes.frame.origin.y && [newOrder containsObject:objAttributes] == NO)
-//			{
-////				checkFrame = objAttributes.frame;
-//				attributes = objAttributes;
-//			}
-//		}];
-//
-//		[newOrder setObject:attributes atIndexedSubscript:index];
-//		placed++;
-//	}
-//
-//}
-
-- (UICollectionViewLayoutAttributes *)lastAttributesInColumn:(NSInteger)column
+- (CGFloat)bottomYOfSection:(NSInteger)section
 {
+	NSInteger lastRow = [self.collectionView numberOfItemsInSection:section] - 1;
+	NSIndexPath * footerIndexPath = [NSIndexPath indexPathForItem:lastRow inSection:section];
+	UICollectionViewLayoutAttributes * footer = [self.footers objectForKey:footerIndexPath];
+	return CGRectGetMaxY(footer.frame);
+}
+
+- (UICollectionViewLayoutAttributes *)lastAttributesInColumn:(NSInteger)column inSection:(NSInteger)section
+{
+	NSArray * columns = [self.sectionColumns objectForKey:@( section )];
 	__block UICollectionViewLayoutAttributes * attributes;
 
-	[self.columns[column] enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes * objAttributes, NSUInteger idx, BOOL *stop) {
+	[columns[column] enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes * objAttributes, NSUInteger idx, BOOL *stop) {
 		if (CGRectGetMaxY(objAttributes.frame) > CGRectGetMaxY(attributes.frame))
 		{
 			attributes = objAttributes;
@@ -109,20 +92,21 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	return attributes;
 }
 
-- (CGFloat)heightForColumn:(NSInteger)column
+- (CGFloat)heightForColumn:(NSInteger)column inSection:(NSInteger)section
 {
-	UICollectionViewLayoutAttributes * attributes = [self lastAttributesInColumn:column];
+	UICollectionViewLayoutAttributes * attributes = [self lastAttributesInColumn:column inSection:section];
 	return CGRectGetMaxY(attributes.frame) + self.interItemSpacingY;
 }
 
-- (NSInteger)shortestColumn
+- (NSInteger)shortestColumnInSection:(NSInteger)section
 {
+	NSArray * columns = [self.sectionColumns objectForKey:@( section )];
 	NSInteger shortestColumn = 0;
 	CGFloat shortestHeight = CGFLOAT_MAX;
 
-	for (NSInteger column = 0; column < self.columns.count; column++)
+	for (NSInteger column = 0; column < columns.count; column++)
 	{
-		CGFloat columnHeight = [self heightForColumn:column];
+		CGFloat columnHeight = [self heightForColumn:column inSection:section];
 
 		if (columnHeight < shortestHeight)
 		{
@@ -134,14 +118,15 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	return shortestColumn;
 }
 
-- (NSInteger)tallestColumn
+- (NSInteger)tallestColumnInSection:(NSInteger)section
 {
+	NSArray * columns = [self.sectionColumns objectForKey:@( section )];
 	NSInteger tallestColumn = 0;
 	CGFloat tallestHeight = 0;
 
-	for (NSInteger column = 0; column < self.columns.count; column++)
+	for (NSInteger column = 0; column < columns.count; column++)
 	{
-		CGFloat columnHeight = [self heightForColumn:column];
+		CGFloat columnHeight = [self heightForColumn:column inSection:section];
 
 		if (columnHeight > tallestHeight)
 		{
@@ -153,23 +138,26 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	return tallestColumn;
 }
 
-- (void)removeAttributes:(UICollectionViewLayoutAttributes *)attributes fromColumn:(NSInteger)column
+- (void)removeAttributes:(UICollectionViewLayoutAttributes *)attributes fromColumn:(NSInteger)column inSection:(NSInteger)section
 {
-	[self.columns[column] removeObject:attributes];
+	NSMutableArray * columns = [self.sectionColumns objectForKey:@( section )];
+	[columns[column] removeObject:attributes];
 }
 
-- (void)addAttributes:(UICollectionViewLayoutAttributes *)attributes toColumn:(NSInteger)column
+- (void)addAttributes:(UICollectionViewLayoutAttributes *)attributes toColumn:(NSInteger)column inSection:(NSInteger)section
 {
-	[self.columns[column] addObject:attributes];
+	NSMutableArray * columns = [self.sectionColumns objectForKey:@( section )];
+	[columns[column] addObject:attributes];
 }
 
-- (NSInteger)columnForAttributes:(UICollectionViewLayoutAttributes *)attributes
+- (NSInteger)columnForAttributes:(UICollectionViewLayoutAttributes *)attributes inSection:(NSInteger)section
 {
+	NSMutableArray * columns = [self.sectionColumns objectForKey:@( section )];
 	NSInteger columnIdx = NSNotFound;
 
-	for (NSInteger column = 0; column < self.columns.count; column++)
+	for (NSInteger column = 0; column < columns.count; column++)
 	{
-		if ([self.columns[column] containsObject:attributes])
+		if ([columns[column] containsObject:attributes])
 		{
 			columnIdx = column;
 			break;
@@ -192,7 +180,7 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 	self.headers = [NSMutableDictionary dictionary];
 	self.footers = [NSMutableDictionary dictionary];
-	self.columns = [NSMutableArray array];
+	self.sectionColumns = [NSMutableDictionary dictionary];
 	self.columnGutters = [NSMutableArray array];
 
 	NSInteger columnCount = (int)(self.collectionView.frame.size.width / self.cellWidth);
@@ -204,34 +192,34 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	NSInteger gutterCount = columnCount + 1;
 	self.gutterSpace = remainingSpace / gutterCount;
 
-	// create column placeholders
-	for (NSInteger column = 0; column < columnCount; column++)
-	{
-		[self.columns addObject:[NSMutableArray array]];
-	}
-
 	NSIndexPath *indexPath;
 	NSInteger numSections = [self.collectionView numberOfSections];
 	for(NSInteger section = 0; section < numSections; section++)
 	{
+		// create column placeholders
+		NSMutableArray * columns = [NSMutableArray array];
+		for (NSInteger column = 0; column < columnCount; column++)
+		{
+			[columns addObject:[NSMutableArray array]];
+		}
+		[self.sectionColumns setObject:columns forKey:@( section )];
+
 		indexPath = [NSIndexPath indexPathForItem:0 inSection:section];
 
 		NSInteger numItems = [self.collectionView numberOfItemsInSection:section];
 		for(NSInteger item = 0; item < numItems; item++)
 		{
+			indexPath = [NSIndexPath indexPathForItem:item inSection:section];
+
 			// Header
 			if (indexPath.item == 0)
 			{
 				UICollectionViewLayoutAttributes * headerAttributes = [self layoutAttributesForSupplementaryViewOfKind:RBCollectionViewBalancedColumnHeaderKind atIndexPath:indexPath];
 
-				if (headerAttributes.frame.size.height > 0.0)
-				{
-					[headerLayoutDictionary setObject:headerAttributes forKey:indexPath];
-					[self.headers setObject:headerAttributes forKey:indexPath];
-				}
+				[headerLayoutDictionary setObject:headerAttributes forKey:indexPath];
+				[self.headers setObject:headerAttributes forKey:indexPath];
             }
 
-			indexPath = [NSIndexPath indexPathForItem:item inSection:section];
 			UICollectionViewLayoutAttributes * attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
 			[cellLayoutDictionary setObject:attributes forKey:indexPath];
 
@@ -240,11 +228,8 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 			{
 				UICollectionViewLayoutAttributes * footerAttributes = [self layoutAttributesForSupplementaryViewOfKind:RBCollectionViewBalancedColumnFooterKind atIndexPath:indexPath];
 
-				if (footerAttributes.frame.size.height > 0.0)
-				{
-					[footerLayoutDictionary setObject:footerAttributes forKey:indexPath];
-					[self.footers setObject:footerAttributes forKey:indexPath];
-				}
+				[footerLayoutDictionary setObject:footerAttributes forKey:indexPath];
+				[self.footers setObject:footerAttributes forKey:indexPath];
 			}
 		}
 	}
@@ -293,11 +278,7 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 			if (indexPath.section != 0)
 			{
-				NSInteger lastSection = indexPath.section - 1;
-				NSInteger lastRowOfLastSection = [self.collectionView numberOfItemsInSection:lastSection] - 1;
-				NSIndexPath * footerIndexPath = [NSIndexPath indexPathForItem:lastRowOfLastSection inSection:lastSection];
-				UICollectionViewLayoutAttributes * previousFooter = [self.footers objectForKey:footerIndexPath];
-				top = CGRectGetMaxY(previousFooter.frame);
+				top = [self bottomYOfSection:indexPath.section - 1];
 			}
 		}
 	}
@@ -308,7 +289,7 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 		{
 			height = [delegate collectionView:self.collectionView layout:self heightForFooterInSection:indexPath.section];
 
-			top = [self heightForColumn:[self tallestColumn]];
+			top = [self heightForColumn:[self tallestColumnInSection:indexPath.section] inSection:indexPath.section];
 		}
 	}
 
@@ -321,9 +302,9 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 {
     UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
 
-	NSInteger column = [self shortestColumn];
+	NSInteger column = [self shortestColumnInSection:indexPath.section];
 
-	CGFloat top = [self heightForColumn:column];
+	CGFloat top = [self heightForColumn:column inSection:indexPath.section];
 	CGFloat left = self.gutterSpace + ((self.cellWidth + self.gutterSpace) * column);
 	CGFloat height = self.cellWidth;
 	CGFloat width = self.cellWidth;
@@ -337,26 +318,35 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 	if (top == self.interItemSpacingY) // We are the first cell
 	{
-		NSIndexPath * sectionIndexPath = [NSIndexPath indexPathForItem:0 inSection:indexPath.section];
 		top -= self.interItemSpacingY; // No spaceing on first cell in column
+
+		// Add height of previous section
+		if (indexPath.section != 0)
+		{
+			top = [self bottomYOfSection:indexPath.section - 1];
+		}
+
+		// Add header height if appropriate
+		NSIndexPath * sectionIndexPath = [NSIndexPath indexPathForItem:0 inSection:indexPath.section];
+
 		if ([self.headers objectForKey:sectionIndexPath])
 		{
 			UICollectionViewLayoutAttributes * headerAttributes = [self.headers objectForKey:sectionIndexPath];
-			top = headerAttributes.frame.size.height + self.interItemSpacingY;
+			top += headerAttributes.frame.size.height + self.interItemSpacingY;
 		}
 	}
 
 	attributes.frame = CGRectMake(left, top, width, height);
 
-	NSInteger existingColumnPosition = [self columnForAttributes:attributes];
+	NSInteger existingColumnPosition = [self columnForAttributes:attributes inSection:indexPath.section];
 
 	if (existingColumnPosition != column)
 	{
 		if (existingColumnPosition != NSNotFound)
 		{
-			[self removeAttributes:attributes fromColumn:existingColumnPosition];
+			[self removeAttributes:attributes fromColumn:existingColumnPosition inSection:indexPath.section];
 		}
-		[self addAttributes:attributes toColumn:column];
+		[self addAttributes:attributes toColumn:column inSection:indexPath.section];
 	}
 
     return attributes;
@@ -365,21 +355,23 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 - (CGSize)collectionViewContentSize
 {
 	CGFloat width = self.collectionView.frame.size.width;
-	CGFloat height = 0;
+//	__block CGFloat height = 0;
+//
+//	[self.sectionColumns enumerateKeysAndObjectsUsingBlock:^(id key, NSArray * columns, BOOL *stop) {
+//		for (NSInteger column = 0; column < columns.count; column++)
+//		{
+//			CGFloat newHeight = [self heightForColumn:column inSection:[key integerValue]];
+//
+//			if (newHeight > height)
+//			{
+//				height = newHeight;
+//			}
+//		}
+//	}];
 
-	for (NSInteger column = 0; column < self.columns.count; column++)
-	{
-		CGFloat newHeight = [self heightForColumn:column];
-
-		if (newHeight > height)
-		{
-			height = newHeight;
-		}
-	}
-
-	if (self.footers.count)
-	{
-		__block CGFloat footerHeight = 0;
+//	if (self.footers.count)
+//	{
+//		__block CGFloat footerHeight = 0;
 		__block CGFloat maxY = 0;
 
 		[self.footers enumerateKeysAndObjectsUsingBlock:^(id key, UICollectionViewLayoutAttributes * obj, BOOL *stop) {
@@ -388,14 +380,14 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 			if (objMaxY > maxY)
 			{
 				maxY = objMaxY;
-				footerHeight += obj.frame.size.height;
+//				footerHeight += obj.frame.size.height;
 			}
 		}];
 
-		height += footerHeight;
-	}
+//		height += footerHeight;
+//	}
 
-	return CGSizeMake(width, height);
+	return CGSizeMake(width, maxY);
 }
 
 - (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
@@ -427,11 +419,6 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 - (void)finalizeCollectionViewUpdates
 {
 	[super finalizeCollectionViewUpdates];
-
-//	for (NSInteger column = 0; column <= self.columns.count; column++)
-//	{
-//		[self reOrderColumn:column];
-//	}
 
 	// release the insert and delete index paths
 	self.deleteIndexPaths = nil;
