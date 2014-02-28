@@ -43,4 +43,3 @@ To make layout work with rotation invalidate it like so:
 ####TODO
 
 * Make more configurable
-* Make headers sticky like UITableView headers

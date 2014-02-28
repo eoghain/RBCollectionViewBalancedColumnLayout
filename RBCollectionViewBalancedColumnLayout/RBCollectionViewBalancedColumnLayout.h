@@ -63,4 +63,9 @@ FOUNDATION_EXPORT NSString *const RBCollectionViewBalancedColumnFooterKind;
  */
 @property (nonatomic, assign) CGFloat interItemSpacingY;
 
+/**
+ * Stick the header to top until section goes out of scope
+ */
+@property (nonatomic, assign) BOOL stickyHeader;
+
 @end

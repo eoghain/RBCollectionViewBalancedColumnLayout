@@ -52,6 +52,7 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 - (void)setup
 {
+	self.stickyHeader = NO;
 	self.interItemSpacingY = 5.0f;
 	self.cellWidth = 300; // Defaults to full width of iPhone + 10px gutters
 }
@@ -261,13 +262,36 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 		[elementsInfo enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *indexPath, UICollectionViewLayoutAttributes *layoutAttributes, BOOL *innerStop) {
 
-			if (CGRectIntersectsRect(rect, layoutAttributes.frame))
+			if (CGRectIntersectsRect(rect, layoutAttributes.frame) || [elementIdentifier isEqualToString:RBCollectionViewBalancedColumnHeaderKind])
 			{
 				[attributes addObject:layoutAttributes];
 			}
 		}];
 	}];
-	
+
+	if (self.stickyHeader == NO)
+	{
+		return attributes;
+	}
+
+	[attributes enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes * layoutAttributes, NSUInteger idx, BOOL *stop) {
+		if (layoutAttributes.representedElementKind == RBCollectionViewBalancedColumnHeaderKind)
+		{
+			layoutAttributes.zIndex = 1024;
+
+			CGFloat top = MAX(layoutAttributes.frame.origin.y, self.collectionView.contentOffset.y);
+			CGFloat left = layoutAttributes.frame.origin.x;
+			CGFloat width = self.collectionView.bounds.size.width;
+			CGFloat height = layoutAttributes.frame.size.height;
+
+			NSInteger section = layoutAttributes.indexPath.section;
+			CGFloat bottomY = [self bottomYOfSection:section];
+			top = MIN(top, bottomY - height);
+
+			layoutAttributes.frame = CGRectMake(left, top, width, height);
+		}
+	}];
+
 	return attributes;
 }
 
@@ -365,6 +389,11 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	}
 
     return attributes;
+}
+
+-(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBound
+{
+    return self.stickyHeader;
 }
 
 - (CGSize)collectionViewContentSize

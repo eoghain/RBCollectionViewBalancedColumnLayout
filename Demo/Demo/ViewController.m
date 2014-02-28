@@ -33,7 +33,9 @@
     [super viewDidLoad];
 	self.cellHeights = [NSMutableDictionary dictionary];
 
-	((RBCollectionViewBalancedColumnLayout *)self.collectionView.collectionViewLayout).interItemSpacingY = 10;
+	RBCollectionViewBalancedColumnLayout * layout = (id)self.collectionView.collectionViewLayout;
+	layout.interItemSpacingY = 10;
+	layout.stickyHeader = YES;
 
 	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnHeaderKind withReuseIdentifier:@"header"];
 	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnFooterKind withReuseIdentifier:@"footer"];
@@ -103,7 +105,7 @@
 	{
 		reuseView = [self.collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"header" forIndexPath:indexPath];
 
-		reuseView.backgroundColor = [UIColor colorWithRed:0xf8/255.0 green:0xf8/255.0 blue:0xf8/255.0 alpha:1];
+		reuseView.backgroundColor = (indexPath.section == 0) ? [UIColor whiteColor] : [UIColor blackColor];
 
 		UILabel * label = (id)[reuseView viewWithTag:1];
 		if (label == nil)
@@ -116,12 +118,13 @@
 			[reuseView addSubview:label];
 		}
 
-		label.text = @"Villains";
-		if (indexPath.section == 0)
+		label.text = @"Heroes";
+		label.textColor = [UIColor blackColor];
+		if (indexPath.section == 1)
 		{
-			label.text = @"Heroes";
+			label.text = @"Villains";
+			label.textColor = [UIColor whiteColor];
 		}
-
 	}
 
 	if (kind == RBCollectionViewBalancedColumnFooterKind)
