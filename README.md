@@ -23,14 +23,20 @@ To make layout work with rotation invalidate it like so:
 ```
 
 ## Screenshots
+
 #### Landscape
-<p align="center" >
-  <img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/landscape.png" alt="Landscape" title="Screenshot 1" height="600">
+<p align="center">
+<img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/landscape.png" alt="Landscape" title="Screenshot 5" height="600">
+</p>
+#### Rotating
+<p align="center">
+<img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/rotation.png" alt="Rotating" title="Screenshot 2" height="600">
 </p>
 #### Portrait
-<p align="center" >
-  <img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/portrait.png" alt="Portrait" title="Screenshot 2" height="600">
+<p align="center">
+<img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/portrait.png" alt="Portrait" title="Screenshot 2" height="600">
 </p>
+
 >Data provided by Marvel. © 2014 Marvel
 
 
