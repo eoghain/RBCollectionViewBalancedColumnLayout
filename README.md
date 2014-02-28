@@ -22,6 +22,16 @@ To make layout work with rotation invalidate it like so:
 }
 ```
 
+## Screenshots
+<p align="center" >
+  <img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/landscape.png" alt="Landscape" title="Screenshot 1" height="600">
+</p>
+<p align="center" >
+  <img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/portrait.png" alt="Portrait" title="Screenshot 2" height="600">
+</p>
+
+
+
 ####TODO
 
 * Make more configurable
