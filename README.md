@@ -43,4 +43,4 @@ To make layout work with rotation invalidate it like so:
 ####TODO
 
 * Make more configurable
-* Figure out how to exposed properties to IB (yeah right!)
+* Make headers sticky like UITableView headers
