@@ -42,4 +42,7 @@ To make layout work with rotation invalidate it like so:
 
 ####TODO
 
-* Make more configurable
+- [ ] Make more configurable
+- [x] Replace Flowlayout delegate with our own
+- [x] Implement header/footer supplementary views 
+- [x] Make header views sticky like UITableView section headers
