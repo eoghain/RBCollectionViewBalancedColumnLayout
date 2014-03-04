@@ -14,7 +14,9 @@
 
 @property (nonatomic, strong) NSMutableDictionary * cellHeights;
 @property (nonatomic, strong) NSArray * imageHeights;
-@property (nonatomic, strong) NSArray * data;
+@property (nonatomic, strong) NSArray * dataKeys;
+@property (nonatomic, strong) NSDictionary * data;
+@property (nonatomic, strong) NSCache * imageCache;
 
 @end
 
@@ -31,6 +33,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+	self.imageCache = [[NSCache alloc] init];
 	self.cellHeights = [NSMutableDictionary dictionary];
 
 	RBCollectionViewBalancedColumnLayout * layout = (id)self.collectionView.collectionViewLayout;
@@ -40,10 +43,9 @@
 	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnHeaderKind withReuseIdentifier:@"header"];
 	[self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:RBCollectionViewBalancedColumnFooterKind withReuseIdentifier:@"footer"];
 
-
 	// Setup Data - I know ugly data structure, but this is just a demo
-	self.data = @[
-		@[
+	self.dataKeys = @[ @"Heroes", @"Villains"];
+	self.data = @{ self.dataKeys[0] :	@[
 			@{ @"name" : @"Archangel", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/8/03/526165ed93180" },
 			@{ @"name" : @"Colossus", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/6/e0/51127cf4b996f" },
 			@{ @"name" : @"Cyclops", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/6/70/526547e2d90ad" },
@@ -54,7 +56,7 @@
 			@{ @"name" : @"Jubilee", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/6/c0/4e7a2148b6e59" },
 			@{ @"name": @"Iceman", @"path": @"http://i.annihil.us/u/prod/marvel/i/mg/1/d0/52696c836898c"},
 		],
-		@[
+		self.dataKeys[1] : @[
 			@{ @"name" : @"Doctor Doom", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/8/90/5273cac0ac417" },
 			@{ @"name": @"Sabretooth (Ultimate)", @"path": @"http://i.annihil.us/u/prod/marvel/i/mg/8/c0/4c0033dfc318e" },
 			@{ @"name": @"Magneto", @"path": @"http://i.annihil.us/u/prod/marvel/i/mg/3/b0/5261a7e53f827" },
@@ -63,7 +65,7 @@
 			@{ @"name" : @"Dracula", @"path" : @"http://i.annihil.us/u/prod/marvel/i/mg/a/03/526955af18612" },
 			@{ @"name": @"Scalphunter", @"path": @"http://i.annihil.us/u/prod/marvel/i/mg/9/10/4ce5a473b81b3" },
 		]
-	];
+	};
 
 	self.imageHeights = @[
 		@{ @"name" : @"standard_fantastic", @"height" : @( 250 ) },
@@ -89,12 +91,12 @@
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-	return [self.data count];
+	return [self.dataKeys count];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-	return [self.data[section] count];
+	return [self.data[self.dataKeys[section]] count];
 }
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
@@ -118,11 +120,10 @@
 			[reuseView addSubview:label];
 		}
 
-		label.text = @"Heroes";
+		label.text = self.dataKeys[indexPath.section];
 		label.textColor = [UIColor blackColor];
 		if (indexPath.section == 1)
 		{
-			label.text = @"Villains";
 			label.textColor = [UIColor whiteColor];
 		}
 	}
@@ -155,14 +156,31 @@
 	UICollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
 
 	NSDictionary * portrait;
-	portrait = self.data[indexPath.section][indexPath.row];
+	portrait = self.data[self.dataKeys[indexPath.section]][indexPath.row];
 
 	NSDictionary * imageType = self.imageHeights[indexPath.row % 3];
 	NSURL * imageURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@.jpg", portrait[@"path"], imageType[@"name"]]];
 
-	// @TODO: don't do things this way, the UI thread hates it!
-	UIImageView * imageView = (id)[cell viewWithTag:1];
-	imageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
+	if ([self.imageCache objectForKey:imageURL] == nil)
+	{
+		__weak typeof(self) weakSelf = self;
+		dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+		dispatch_async(queue, ^{
+			UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
+			dispatch_sync(dispatch_get_main_queue(), ^{
+				[weakSelf.imageCache setObject:image forKey:imageURL];
+
+				UIImageView * imageView = (id)[cell viewWithTag:1];
+				[imageView setImage:image];
+				[cell setNeedsLayout];
+			});
+		});
+	}
+	else
+	{
+		UIImageView * imageView = (id)[cell viewWithTag:1];
+		imageView.image = [self.imageCache objectForKey:imageURL];
+	}
 
 	UILabel * label = (id)[cell viewWithTag:2];
 	label.text = portrait[@"name"];
