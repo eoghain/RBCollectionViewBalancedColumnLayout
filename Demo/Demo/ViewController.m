@@ -80,13 +80,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Rotation
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	[self.collectionView.collectionViewLayout invalidateLayout];
-}
-
 #pragma mark - UICollectionViewDelegate
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView

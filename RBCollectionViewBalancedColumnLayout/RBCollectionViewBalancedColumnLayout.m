@@ -393,7 +393,17 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 -(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBound
 {
-    return self.stickyHeader;
+    if (self.stickyHeader)
+    {
+        return YES;
+    }
+    
+    if (newBound.size.width != self.collectionView.bounds.size.width)
+    {
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (CGSize)collectionViewContentSize

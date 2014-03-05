@@ -6,20 +6,11 @@ A UICollectionViewLayout that displays your cells in a variable number of column
 
 1. Copy RBCollectionViewBalancedColumnLayout .h/.m into your project
 2. Set the layout on your collectionView to Custom, and set it's name to RBCollectionViewBalancedColumnLayout
-3. Implement the collectionView:layout:heightForItemAtIndexPath: delegate method - if you want variable height cells
+3. Implement the collectionView:layout:heightForItemAtIndexPath: delegate method - if you want variable height cells or just set the width like so:
 
-To customize the size of your cells grab the layout from the collection view and set the cellWidth property:
 ``` objective-c
 RBCollectionViewBalancedColumnLayout * layout = (id)self.collectionView.collectionViewLayout;
 layout.cellWidth = 100;
-```
-
-To make layout work with rotation invalidate it like so:
-``` objective-c
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-	[self.collectionView.collectionViewLayout invalidateLayout];
-}
 ```
 
 ## Screenshots
