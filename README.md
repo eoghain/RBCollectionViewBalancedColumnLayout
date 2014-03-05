@@ -43,6 +43,8 @@ To make layout work with rotation invalidate it like so:
 ####TODO
 
 - [ ] Make more configurable
+- [ ] Add ability to set unique cell widths per section
+- [ ] Update demo to show adding/removing cells and sections
 - [x] Replace Flowlayout delegate with our own
 - [x] Implement header/footer supplementary views 
 - [x] Make header views sticky like UITableView section headers
