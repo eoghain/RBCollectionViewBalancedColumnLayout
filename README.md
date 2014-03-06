@@ -30,11 +30,26 @@ layout.cellWidth = 100;
 
 >Data provided by Marvel. © 2014 Marvel
 
+## Delegate methods
+
+### Required
+
+``` objective-c
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath;
+```
+
+### Optional
+
+``` objective-c
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout heightForHeaderInSection:(NSInteger)section;
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout heightForFooterInSection:(NSInteger)section;
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout widthForCellsInSection:(NSInteger)section;
+```
 
 ####TODO
 
 - [ ] Make more configurable
-- [ ] Add ability to set unique cell widths per section
+- [x] Add ability to set unique cell widths per section
 - [ ] Update demo to show adding/removing cells and sections
 - [x] Replace Flowlayout delegate with our own
 - [x] Implement header/footer supplementary views 

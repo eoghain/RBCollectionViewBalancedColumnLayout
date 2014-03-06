@@ -15,10 +15,11 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 @property (nonatomic, strong) NSMutableDictionary * layoutInformation;
 @property (nonatomic, strong) NSMutableDictionary * sectionColumns;
+@property (nonatomic, strong) NSMutableDictionary * sectionCellWidths;
+@property (nonatomic, strong) NSMutableDictionary * sectionColumnCounts;
+@property (nonatomic, strong) NSMutableDictionary * sectionGutters;
 @property (nonatomic, strong) NSMutableDictionary * headers;
 @property (nonatomic, strong) NSMutableDictionary * footers;
-@property (nonatomic, strong) NSMutableArray * columnGutters;
-@property (nonatomic, assign) CGFloat gutterSpace;
 
 @property (nonatomic, strong) NSMutableArray * insertIndexPaths;
 @property (nonatomic, strong) NSMutableArray * deleteIndexPaths;
@@ -190,28 +191,42 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 	NSMutableDictionary *headerLayoutDictionary = [NSMutableDictionary dictionary];
 	NSMutableDictionary *footerLayoutDictionary = [NSMutableDictionary dictionary];
 
-	self.headers = [NSMutableDictionary dictionary];
-	self.footers = [NSMutableDictionary dictionary];
-	self.sectionColumns = [NSMutableDictionary dictionary];
-	self.columnGutters = [NSMutableArray array];
-
-	NSInteger columnCount = (int)(self.collectionView.frame.size.width / self.cellWidth);
-
-	// create gutters
-	CGFloat totalWidth = self.collectionView.frame.size.width;
-	CGFloat usedWidth = (columnCount * self.cellWidth);
-	CGFloat remainingSpace = totalWidth - usedWidth;
-	NSInteger gutterCount = columnCount + 1;
-	self.gutterSpace = remainingSpace / gutterCount;
-
 	id delegate = self.collectionView.delegate;
-	NSIndexPath *indexPath;
 	NSInteger numSections = [self.collectionView numberOfSections];
+	self.headers = [NSMutableDictionary dictionaryWithCapacity:numSections];
+	self.footers = [NSMutableDictionary dictionaryWithCapacity:numSections];
+	self.sectionColumns = [NSMutableDictionary dictionaryWithCapacity:numSections];
+	self.sectionColumnCounts = [NSMutableDictionary dictionaryWithCapacity:numSections];
+	self.sectionCellWidths = [NSMutableDictionary dictionaryWithCapacity:numSections];
+	self.sectionGutters = [NSMutableDictionary dictionaryWithCapacity:numSections];
+
+	for (NSInteger section = 0; section < numSections; section++)
+	{
+		CGFloat width = self.cellWidth;
+		if ([delegate respondsToSelector:@selector(collectionView:layout:widthForCellsInSection:)])
+		{
+			width = [delegate collectionView:self.collectionView layout:self widthForCellsInSection:section];
+		}
+
+		NSInteger columnCount = (int)(self.collectionView.frame.size.width / width);
+		[self.sectionCellWidths setObject:@( width ) forKey:@( section )];
+		[self.sectionColumnCounts setObject:@( columnCount ) forKey:@( section )];
+
+		// create gutters
+		CGFloat totalWidth = self.collectionView.frame.size.width;
+		CGFloat usedWidth = (columnCount * width);
+		CGFloat remainingSpace = totalWidth - usedWidth;
+		NSInteger gutterCount = columnCount + 1;
+		[self.sectionGutters setObject:@( remainingSpace / gutterCount ) forKey:@( section )];
+	}
+
+	NSIndexPath *indexPath;
 	for(NSInteger section = 0; section < numSections; section++)
 	{
 		// create column placeholders
 		NSMutableArray * columns = [NSMutableArray array];
-		for (NSInteger column = 0; column < columnCount; column++)
+		NSInteger columnCounts = [[self.sectionColumnCounts objectForKey:@( section )] intValue];
+		for (NSInteger column = 0; column < columnCounts; column++)
 		{
 			[columns addObject:[NSMutableArray array]];
 		}
@@ -340,10 +355,12 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 	NSInteger column = [self shortestColumnInSection:indexPath.section];
 
+	CGFloat cellWidth = [[self.sectionCellWidths objectForKey:@( indexPath.section )] floatValue];
+	CGFloat gutterSpace = [[self.sectionGutters objectForKey:@( indexPath.section )] floatValue];
 	CGFloat top = [self heightForColumn:column inSection:indexPath.section];
-	CGFloat left = self.gutterSpace + ((self.cellWidth + self.gutterSpace) * column);
-	CGFloat height = self.cellWidth;
-	CGFloat width = self.cellWidth;
+	CGFloat left = gutterSpace + ((cellWidth + gutterSpace) * column);
+	CGFloat height = cellWidth;
+	CGFloat width = cellWidth;
 
 	id delegate = self.collectionView.delegate;
 
