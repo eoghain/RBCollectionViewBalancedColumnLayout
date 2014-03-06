@@ -206,12 +206,12 @@
 	return 25.0;
 }
 
-//- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout widthForCellsInSection:(NSInteger)section
-//{
-//	if (section == 1)
-//		return 200;
-//
-//	return 300;
-//}
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(RBCollectionViewBalancedColumnLayout *)collectionViewLayout widthForCellsInSection:(NSInteger)section
+{
+	if (section == 1)
+		return 200;
+
+	return 300;
+}
 
 @end
