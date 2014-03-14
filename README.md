@@ -28,6 +28,12 @@ layout.cellWidth = 100;
 <img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/portrait.png" alt="Portrait" title="Screenshot 2" height="600">
 </p>
 
+### iPhone
+<p align="center">
+<img src="https://raw.github.com/eoghain/RBCollectionViewBalancedColumnLayout/master/Images/iPhone.png" alt="iPhone" title="Screenshot 2" height="600">
+</p>
+
+
 >Data provided by Marvel. © 2014 Marvel
 
 ## Delegate methods
