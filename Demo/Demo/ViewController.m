@@ -211,7 +211,7 @@
 	if (section == 1)
 		return 200;
 
-	return 300;
+	return 150;
 }
 
 @end
