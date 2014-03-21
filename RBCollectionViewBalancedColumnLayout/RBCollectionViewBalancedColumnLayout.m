@@ -73,21 +73,16 @@ NSString *const RBCollectionViewBalancedColumnFooterKind = @"RBCollectionViewBal
 
 - (CGFloat)bottomYOfSection:(NSInteger)section
 {
-	NSInteger tallestColumn = [self tallestColumnInSection:section];
-	UICollectionViewLayoutAttributes * attributes = [self lastAttributesInColumn:tallestColumn inSection:section];
+	CGFloat bottomY = 0;
 
-	CGRect tallestRect = attributes.frame;
+	NSInteger tallestColumn = [self tallestColumnInSection:section];
+	bottomY = [self heightForColumn:tallestColumn inSection:section];
 
 	NSInteger lastRow = [self.collectionView numberOfItemsInSection:section] - 1;
 	NSIndexPath * footerIndexPath = [NSIndexPath indexPathForItem:lastRow inSection:section];
 	UICollectionViewLayoutAttributes * footer = [self.footers objectForKey:footerIndexPath];
 
-	if (CGRectGetMaxY(footer.frame) > CGRectGetMaxY(attributes.frame))
-	{
-		tallestRect = footer.frame;
-	}
-
-	return CGRectGetMaxY(tallestRect);
+	return MAX(bottomY, CGRectGetMaxY(footer.frame));
 }
 
 - (UICollectionViewLayoutAttributes *)lastAttributesInColumn:(NSInteger)column inSection:(NSInteger)section
